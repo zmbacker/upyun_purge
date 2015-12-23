@@ -1,6 +1,7 @@
 require "upyun/purge/version"
 require "upyun/purge/base_extend"
 require "upyun/purge/client"
+require "json"
 
 module Upyun
   module Purge
@@ -30,10 +31,7 @@ module Upyun
 
 
     def self.new( hash = {} )
-      @@bucket_name ||= hash[:bucket_name]
-      @@operator_name ||= hash[:operator_name]
-      @@operator_password ||= hash[:operator_password]
-      Client.new
+      Client.new( hash )
     end
 
   end

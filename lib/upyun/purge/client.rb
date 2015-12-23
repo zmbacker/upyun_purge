@@ -4,6 +4,14 @@ module Upyun
 
       attr_accessor :urls
 
+      attr_accessor :bucket_name, :operator_name, :operator_password
+
+      def initialize( option={} )
+        @bucket_name = option[:bucket_name] || Upyun::Purge.bucket_name
+        @operator_name = option[:operator_name] || Upyun::Purge.operator_name
+        @operator_password = option[:operator_password] || Upyun::Purge.operator_password
+      end
+
       def purge( urls = nil)
         @urls = urls.is_a?(Array) ? urls : [urls]
         @urls = @urls.compact
@@ -17,9 +25,9 @@ module Upyun
         response = http.request(request)
         case response
         when Net::HTTPSuccess
-          return response.body
+          return JSON.parse(response.body)
         else
-          raise Exception.new "Request uri:#{uri.request_uri} \nResponse code: #{response.code} \nMessage: #{response.body}"
+          raise Exception.new "\n\tRequest uri:#{uri.request_uri} \n\tResponse code: #{response.code} \n\tMessage: #{response.body}"
         end
 
       end
@@ -30,13 +38,13 @@ module Upyun
       def make_signature
         _urls = @urls.join("\n")
         datetime = Time.now
-        second_str = [_urls,Upyun::Purge.bucket_name, datetime, md5(Upyun::Purge.operator_password)].join("&")
+        second_str = [_urls,@bucket_name, datetime, md5(@operator_password)].join("&")
         sign = md5(second_str)
         sign
       end
 
       def auth_header
-        "UpYun #{Upyun::Purge.bucket_name}:#{Upyun::Purge.operator_name}:#{make_signature}"
+        "UpYun #{@bucket_name}:#{@operator_name}:#{make_signature}"
       end
 
       def md5( str )
