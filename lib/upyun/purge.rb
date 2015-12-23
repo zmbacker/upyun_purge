@@ -29,7 +29,10 @@ module Upyun
 
 
 
-    def self.new
+    def self.new( hash = {} )
+      @@bucket_name ||= hash[:bucket_name]
+      @@operator_name ||= hash[:operator_name]
+      @@operator_password ||= hash[:operator_password]
       Client.new
     end
 
